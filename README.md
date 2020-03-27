@@ -12,6 +12,36 @@
 * `context` - ConTeXt scheme
 * `tetex` - teTeX scheme (more than medium, but nowhere near full)
 
+## Build Info (Image tree)
+```
+       infraonly
+           +
+           |
+           |
+           v
+        minimal
+           +
+           |
+           |
+           v
+         basic
+   +-------+------+
+   |       |      |
+   |       |      |
+   v       v      v
+context  small   gust
+           +
+           |
+           |
+           v
+        medium
+           +
+           |
+      +----+---+
+      v        v
+     full    tetex
+```
+
 # How to use
 Mount your source code at `/data` and run whatever you want with LaTeX.
 
