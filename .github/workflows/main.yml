@@ -22,6 +22,9 @@ jobs:
     
     - name: Build the image
       run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:infraonly -f ctan/Dockerfile.infraonly .
+      
+    - name: Upload the image
+      run: docker push ${{secrets.DOCKERHUB_USER}}/latex:infraonly
   
   create-minimal:
     runs-on: ubuntu-latest
@@ -34,3 +37,6 @@ jobs:
     
       - name: Build the image
         run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:minimal -f ctan/Dockerfile.minimal .
+        
+      - name: Upload the image
+        run: docker push ${{secrets.DOCKERHUB_USER}}/latex:minimal
