@@ -14,32 +14,15 @@
 
 ## Build Info (Image tree)
 ```
-       infraonly
-           +
-           |
-           |
-           v
-        minimal
-           +
-           |
-           |
-           v
-         basic
-   +-------+------+
-   |       |      |
-   |       |      |
-   v       v      v
-context  small   gust
-           +
-           |
-           |
-           v
-        medium
-           +
-           |
-      +----+---+
-      v        v
-     full    tetex
+infraonly (base image with ubuntu:18.04)
++---> minimal 
++---> basic 
++---> small 
++---> context 
++---> gust 
++---> medium 
++---> tetex 
++---> full
 ```
 
 # How to use

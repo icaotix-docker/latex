@@ -1,0 +1,3 @@
+FROM icaotix/latex:small
+
+RUN tlmgr install scheme-context

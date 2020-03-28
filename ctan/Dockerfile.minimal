@@ -1,0 +1,3 @@
+FROM icaotix/latex:infraonly
+
+RUN tlmgr install scheme-minimal

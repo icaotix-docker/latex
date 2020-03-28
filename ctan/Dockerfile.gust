@@ -1,0 +1,3 @@
+FROM icaotix/latex:context
+
+RUN tlmgr install scheme-gust
