@@ -1,3 +1,0 @@
-FROM icaotix/latex:basic
-
-RUN tlmgr install scheme-small

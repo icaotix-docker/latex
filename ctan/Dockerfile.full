@@ -1,3 +1,0 @@
-FROM icaotix/latex:tetex
-
-RUN tlmgr install scheme-full
