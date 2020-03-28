@@ -34,7 +34,7 @@ To extend the one of the docker-images with your packages.
 `FROM icaotix/latex:<tag>`
 
 #### Install latex packages
-` RUN tlmgr install latexmk `
+` RUN tlmgr install latexmk `  
 ` RUN tlmgr install biber `
 
 #### Minted + Pygments
