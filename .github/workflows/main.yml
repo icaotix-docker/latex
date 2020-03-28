@@ -1,0 +1,36 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: 
+      - master 
+      - github-actions
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  create-infraonly:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2 # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    
+    - name: Login to Dockerhub
+      run: echo ${{secrets.DOCKERHUB_PASSWORD}} | docker login -u ${{secrets.DOCKERHUB_USER}} --password-stdin
+    
+    - name: Build the image
+      run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:infraonly -f Dockerfile.infraonly ./ctan
+  
+  create-minimal:
+    runs-on: ubuntu-latest
+    needs: [create-infraonly]
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Login to Dockerhub
+        run: echo ${{secrets.DOCKERHUB_PASSWORD}} | docker login -u ${{secrets.DOCKERHUB_USER}} --password-stdin
+    
+      - name: Build the image
+        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:minimal -f Dockerfile.minimal ./ctan
