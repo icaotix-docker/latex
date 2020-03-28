@@ -1,0 +1,3 @@
+FROM icaotix/latex:minimal
+
+RUN tlmgr install scheme-basic

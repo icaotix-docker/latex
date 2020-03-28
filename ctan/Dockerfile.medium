@@ -1,0 +1,3 @@
+FROM icaotix/latex:gust
+
+RUN tlmgr install scheme-medium

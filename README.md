@@ -12,6 +12,19 @@
 * `context` - ConTeXt scheme
 * `tetex` - teTeX scheme (more than medium, but nowhere near full)
 
+## Build Info (Image tree)
+```
+infraonly (base image with ubuntu:18.04)
++---> minimal
++---> basic
++---> small
++---> context
++---> gust
++---> medium
++---> tetex
++---> full
+```
+
 # How to use
 Mount your source code at `/data` and run whatever you want with LaTeX.
 
