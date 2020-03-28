@@ -20,10 +20,10 @@ jobs:
     - name: Login to Dockerhub
       run: echo ${{secrets.DOCKERHUB_PASSWORD}} | docker login -u ${{secrets.DOCKERHUB_USER}} --password-stdin
     
-    - name: Build the image
+    - name: Build infraonly
       run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:infraonly -f ctan/Dockerfile.infraonly .
       
-    - name: Upload the image
+    - name: Upload infraonly image
       run: docker push ${{secrets.DOCKERHUB_USER}}/latex:infraonly
   
   create-minimal:
@@ -35,8 +35,9 @@ jobs:
       - name: Login to Dockerhub
         run: echo ${{secrets.DOCKERHUB_PASSWORD}} | docker login -u ${{secrets.DOCKERHUB_USER}} --password-stdin
     
-      - name: Build the image
-        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:minimal -f ctan/Dockerfile.minimal .
+      - name: Build minimal 
+        working-directory: ./ctan
+        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:minimal --build-arg SOURCE=infraonly --build-arg SCHEME=minimal .
         
-      - name: Upload the image
+      - name: Upload minimal image
         run: docker push ${{secrets.DOCKERHUB_USER}}/latex:minimal
