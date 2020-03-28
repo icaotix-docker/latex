@@ -15,13 +15,13 @@
 ## Build Info (Image tree)
 ```
 infraonly (base image with ubuntu:18.04)
-+---> minimal 
-+---> basic 
-+---> small 
-+---> context 
-+---> gust 
-+---> medium 
-+---> tetex 
++---> minimal
++---> basic
++---> small
++---> context
++---> gust
++---> medium
++---> tetex
 +---> full
 ```
 
