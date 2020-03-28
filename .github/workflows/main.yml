@@ -12,7 +12,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  create-infraonly:
+  build-infraonly:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2 # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -26,9 +26,9 @@ jobs:
     - name: Upload infraonly image
       run: docker push ${{secrets.DOCKERHUB_USER}}/latex:infraonly
   
-  create-minimal:
+  build-incremental:
     runs-on: ubuntu-latest
-    needs: [create-infraonly]
+    needs: [build-infraonly]
     steps:
       - uses: actions/checkout@v2
       
@@ -38,6 +38,42 @@ jobs:
       - name: Build minimal 
         working-directory: ./ctan
         run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:minimal --build-arg SOURCE=infraonly --build-arg SCHEME=minimal .
+
+      - name: Build basic 
+        working-directory: ./ctan
+        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:basic --build-arg SOURCE=minimal --build-arg SCHEME=basic .
+
+      - name: Build small 
+        working-directory: ./ctan
+        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:small --build-arg SOURCE=basic --build-arg SCHEME=small .
+
+      - name: Build context 
+        working-directory: ./ctan
+        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:context --build-arg SOURCE=small --build-arg SCHEME=context .
+
+      - name: Build gust 
+        working-directory: ./ctan
+        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:gust --build-arg SOURCE=context --build-arg SCHEME=gust .
+
+      - name: Build medium 
+        working-directory: ./ctan
+        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:medium --build-arg SOURCE=gust --build-arg SCHEME=medium .
+
+      - name: Build tetex 
+        working-directory: ./ctan
+        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:tetex --build-arg SOURCE=medium --build-arg SCHEME=tetex .
+
+      - name: Build full
+        working-directory: ./ctan
+        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:full --build-arg SOURCE=tetex --build-arg SCHEME=full .
         
-      - name: Upload minimal image
-        run: docker push ${{secrets.DOCKERHUB_USER}}/latex:minimal
+      - name: Upload images
+        run: |
+          docker push ${{secrets.DOCKERHUB_USER}}/latex:minimal
+          docker push ${{secrets.DOCKERHUB_USER}}/latex:basic
+          docker push ${{secrets.DOCKERHUB_USER}}/latex:small
+          docker push ${{secrets.DOCKERHUB_USER}}/latex:context
+          docker push ${{secrets.DOCKERHUB_USER}}/latex:gust
+          docker push ${{secrets.DOCKERHUB_USER}}/latex:medium
+          docker push ${{secrets.DOCKERHUB_USER}}/latex:tetex
+          docker push ${{secrets.DOCKERHUB_USER}}/latex:full
