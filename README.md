@@ -1,3 +1,5 @@
+![Deploy](https://github.com/icaotix-docker/latex/workflows/Deploy/badge.svg)
+
 # Schemes/Tags
 ## Sizes
 * `infraonly`, `infraonly-scratch` - infrastructure-only scheme (no TeX at all)
