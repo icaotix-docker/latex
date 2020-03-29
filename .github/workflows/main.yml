@@ -9,11 +9,32 @@ on:
     - cron: 0 18 * * *
 
 jobs:
+
+  build-infraonly:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to Dockerhub
+        run: echo ${{secrets.DOCKERHUB_PASSWORD}} | docker login -u ${{secrets.DOCKERHUB_USER}} --password-stdin
+      
+      - name: Build infraonly-scratch
+        working-directory: ./scratch
+        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:infraonly-scratch --build-arg SCHEME=infraonly .
+        
+      - name: Upload infraonly-scratch image
+        run: docker push ${{secrets.DOCKERHUB_USER}}/latex:infraonly-scratch
+
+      - name: Upload infraonly
+        run: |
+          docker tag ${{secrets.DOCKERHUB_USER}}/latex:infraonly-scratch ${{secrets.DOCKERHUB_USER}}/latex:infraonly
+          docker push ${{secrets.DOCKERHUB_USER}}/latex:infraonly
+
   build-scratch:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        scheme: [infraonly, minimal, basic, small, context, gust, medium, tetex, full]
+        scheme: [minimal, basic, small, context, gust, medium, tetex, full]
         include: 
           - scheme: full
             isLatest: true
@@ -39,12 +60,12 @@ jobs:
       - name: Tag as latest
         if: matrix.isLatest
         run: |
-          docker tag ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-incremental ${{secrets.DOCKERHUB_USER}}/latex:latest
+          docker tag ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-scratch ${{secrets.DOCKERHUB_USER}}/latex:latest
           docker push ${{secrets.DOCKERHUB_USER}}/latex:latest
   
   build-incremental:
     runs-on: ubuntu-latest
-    needs: [build-scratch]
+    needs: [build-infraonly]
     strategy:
       max-parallel: 1
       fail-fast: true
@@ -80,5 +101,3 @@ jobs:
         
       - name: Upload ${{matrix.scheme}}-incremental
         run: docker push ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-incremental
-
-      
