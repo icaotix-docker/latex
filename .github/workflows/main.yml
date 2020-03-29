@@ -6,7 +6,7 @@ on:
       - master
       - github-actions
   schedule:
-    - cron: 0 18 * * *
+    - cron: 0 18 * * 0
 
 jobs:
 
@@ -75,19 +75,19 @@ jobs:
           - scheme: minimal
             source: infraonly
           - scheme: basic
-            source: minimal
+            source: minimal-incremental
           - scheme: small
-            source: basic
+            source: basic-incremental
           - scheme: context
-            source: small
+            source: small-incremental
           - scheme: gust
-            source: context
+            source: context-incremental
           - scheme: medium
-            source: gust
+            source: gust-incremental
           - scheme: tetex
-            source: medium
+            source: medium-incremental
           - scheme: full
-            source: tetex
+            source: tetex-incremental
       
     steps:
       - uses: actions/checkout@v2
