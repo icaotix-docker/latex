@@ -5,6 +5,8 @@ on:
     branches: 
       - master 
       - github-actions
+  schedule:
+    - cron: 0 18 * * *
 
 jobs:
   build-infraonly:
@@ -19,22 +21,35 @@ jobs:
       working-directory: ./ctan
       run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:infraonly -f Dockerfile.infraonly .
       
-    #- name: Upload infraonly image
-    # run: docker push ${{secrets.DOCKERHUB_USER}}/latex:infraonly
+    - name: Upload infraonly image
+      run: docker push ${{secrets.DOCKERHUB_USER}}/latex:infraonly
   
   build-incremental:
     runs-on: ubuntu-latest
     needs: [build-infraonly]
     strategy:
+      max-parallel: 1
       matrix:
-        scheme : [minimal, basic] #, small, context, gust, medium, tetex, full]
+        scheme : [minimal, basic, small, context, gust, medium, tetex, full]
         include:
           - scheme: minimal
             source: infraonly
           - scheme: basic
             source: minimal
-      fail-fast: true
-      max-parallel: 1
+          - scheme: small
+            source: basic
+          - scheme: context
+            source: small
+          - scheme: gust
+            source: context
+          - scheme: medium
+            source: gust
+          - scheme: tetex
+            source: medium
+          - scheme: full
+            source: tetex
+            isLatest: true
+      
     steps:
       - uses: actions/checkout@v2
       
@@ -45,11 +60,11 @@ jobs:
         working-directory: ./ctan
         run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}} --build-arg SOURCE=${{matrix.source}} --build-arg SCHEME=${{matrix.scheme}} .
         
-      #- name: Upload ${{ matrix.scheme }}
-      #  run: docker push ${{secrets.DOCKERHUB_USER}}/latex:minimal
+      - name: Upload ${{ matrix.scheme }}
+        run: docker push ${{secrets.DOCKERHUB_USER}}/latex:minimal
 
       - name: Tag as latest
         if: matrix.isLatest
         run: |
-          docker tag ${{secrets.DOCKERHUB_USER}}/latex:full ${{secrets.DOCKERHUB_USER}}/latex:latest
+          docker tag ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}} ${{secrets.DOCKERHUB_USER}}/latex:latest
           docker push ${{secrets.DOCKERHUB_USER}}/latex:latest
