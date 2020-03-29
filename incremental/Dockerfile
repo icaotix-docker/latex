@@ -1,6 +1,6 @@
-ARG SOURCE=infraonly
+ARG SOURCE
 
 FROM icaotix/latex:$SOURCE
-ARG SCHEME=minimal
+ARG SCHEME
 
 RUN tlmgr install scheme-${SCHEME}

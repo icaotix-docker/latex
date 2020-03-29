@@ -8,9 +8,8 @@ RUN apt-get update -q \
     && apt-get install -qy build-essential wget libfontconfig1 \
     && rm -rf /var/lib/apt/lists/*
 
-ARG SCHEME=infraonly
+ARG SCHEME
 
-# Install TexLive with scheme-infraonly
 RUN wget http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz \
     && mkdir /install-tl-unx \
     && tar -xvf install-tl-unx.tar.gz -C /install-tl-unx --strip-components=1 \
