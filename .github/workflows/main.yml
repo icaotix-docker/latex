@@ -4,6 +4,7 @@ on:
   push:
     branches: 
       - master
+      - github-actions
   schedule:
     - cron: 0 18 * * *
 
@@ -13,6 +14,9 @@ jobs:
     strategy:
       matrix:
         scheme: [infraonly, minimal, basic, small, context, gust, medium, tetex, full]
+        include: 
+          - scheme: full
+            isLatest: true
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -20,12 +24,23 @@ jobs:
       - name: Login to Dockerhub
         run: echo ${{secrets.DOCKERHUB_PASSWORD}} | docker login -u ${{secrets.DOCKERHUB_USER}} --password-stdin
       
-      - name: Build ${{matrix.scheme}} from scratch
+      - name: Build ${{matrix.scheme}}-scratch
         working-directory: ./scratch
         run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-scratch --build-arg SCHEME=${{matrix.scheme}}.
         
       - name: Upload ${{matrix.scheme}}-scratch image
         run: docker push ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-scratch
+
+      - name: Upload ${{matrix.scheme}}
+        run: |
+          docker tag ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-scratch ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}
+          docker push ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}
+
+      - name: Tag as latest
+        if: matrix.isLatest
+        run: |
+          docker tag ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-incremental ${{secrets.DOCKERHUB_USER}}/latex:latest
+          docker push ${{secrets.DOCKERHUB_USER}}/latex:latest
   
   build-incremental:
     runs-on: ubuntu-latest
@@ -52,7 +67,6 @@ jobs:
             source: medium
           - scheme: full
             source: tetex
-            isLatest: true
       
     steps:
       - uses: actions/checkout@v2
@@ -67,14 +81,4 @@ jobs:
       - name: Upload ${{matrix.scheme}}-incremental
         run: docker push ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-incremental
 
-      - name: Upload ${{matrix.scheme}}
-        run: |
-          docker tag ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-incremental ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}
-          docker push ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}
-
-      - name: Tag as latest
-        if: matrix.isLatest
-        run: |
-          docker tag ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-incremental ${{secrets.DOCKERHUB_USER}}/latex:latest
-          docker push ${{secrets.DOCKERHUB_USER}}/latex:latest
-          
+      
