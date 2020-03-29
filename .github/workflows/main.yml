@@ -3,8 +3,7 @@ name: Deploy
 on:
   push:
     branches: 
-      - master 
-      - github-actions
+      - master
   schedule:
     - cron: 0 18 * * *
 
@@ -18,17 +17,23 @@ jobs:
       run: echo ${{secrets.DOCKERHUB_PASSWORD}} | docker login -u ${{secrets.DOCKERHUB_USER}} --password-stdin
     
     - name: Build infraonly
-      working-directory: ./ctan
-      run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:infraonly -f Dockerfile.infraonly .
+      working-directory: ./scratch
+      run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:infraonly-incremental .
       
+    - name: Upload infraonly-incremental image
+      run: docker push ${{secrets.DOCKERHUB_USER}}/latex:infraonly-incremental
+
     - name: Upload infraonly image
-      run: docker push ${{secrets.DOCKERHUB_USER}}/latex:infraonly
+      run: |
+        docker tag ${{secrets.DOCKERHUB_USER}}/latex:infraonly-incremental ${{secrets.DOCKERHUB_USER}}/latex:infraonly
+        docker push ${{secrets.DOCKERHUB_USER}}/latex:infraonly
   
   build-incremental:
     runs-on: ubuntu-latest
     needs: [build-infraonly]
     strategy:
       max-parallel: 1
+      fail-fast: true
       matrix:
         scheme : [minimal, basic, small, context, gust, medium, tetex, full]
         include:
@@ -57,14 +62,39 @@ jobs:
         run: echo ${{secrets.DOCKERHUB_PASSWORD}} | docker login -u ${{secrets.DOCKERHUB_USER}} --password-stdin
     
       - name: Build ${{matrix.scheme}} 
-        working-directory: ./ctan
-        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}} --build-arg SOURCE=${{matrix.source}} --build-arg SCHEME=${{matrix.scheme}} .
+        working-directory: ./incrental
+        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-incremental --build-arg SOURCE=${{matrix.source}} --build-arg SCHEME=${{matrix.scheme}} .
         
+      - name: Upload ${{matrix.scheme}}-incremental
+        run: docker push ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-incremental
+
       - name: Upload ${{matrix.scheme}}
-        run: docker push ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}
+        run: |
+          docker tag ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-incremental ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}
+          docker push ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}
 
       - name: Tag as latest
         if: matrix.isLatest
         run: |
-          docker tag ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}} ${{secrets.DOCKERHUB_USER}}/latex:latest
+          docker tag ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-incremental ${{secrets.DOCKERHUB_USER}}/latex:latest
           docker push ${{secrets.DOCKERHUB_USER}}/latex:latest
+
+  build-scratch:
+    runs-on: ubuntu-latest
+    needs: [build-infraonly]
+    strategy:
+      matrix:
+        scheme: [minimal, basic, small, context, gust, medium, tetex, full]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to Dockerhub
+        run: echo ${{secrets.DOCKERHUB_PASSWORD}} | docker login -u ${{secrets.DOCKERHUB_USER}} --password-stdin
+      
+      - name: Build ${{matrix.scheme}} from scratch
+        working-directory: ./scratch
+        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-scratch --build-arg SCHEME=${{matrix.scheme}}.
+        
+      - name: Upload ${{matrix.scheme}}-scratch image
+        run: docker push ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-scratch
