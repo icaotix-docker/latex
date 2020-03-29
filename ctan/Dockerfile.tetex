@@ -1,3 +1,0 @@
-FROM icaotix/latex:medium
-
-RUN tlmgr install scheme-tetex
