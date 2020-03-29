@@ -19,8 +19,8 @@ jobs:
       working-directory: ./ctan
       run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:infraonly -f Dockerfile.infraonly .
       
-    - name: Upload infraonly image
-      run: docker push ${{secrets.DOCKERHUB_USER}}/latex:infraonly
+    #- name: Upload infraonly image
+    # run: docker push ${{secrets.DOCKERHUB_USER}}/latex:infraonly
   
   build-incremental:
     runs-on: ubuntu-latest
@@ -45,8 +45,8 @@ jobs:
         working-directory: ./ctan
         run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}} --build-arg SOURCE=${{matrix.source}} --build-arg SCHEME=${{matrix.scheme}} .
         
-      - name: Upload ${{ matrix.scheme }}
-        run: docker push ${{secrets.DOCKERHUB_USER}}/latex:minimal
+      #- name: Upload ${{ matrix.scheme }}
+      #  run: docker push ${{secrets.DOCKERHUB_USER}}/latex:minimal
 
       - name: Tag as latest
         if: matrix.isLatest
