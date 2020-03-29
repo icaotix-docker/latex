@@ -4,7 +4,6 @@ on:
   push:
     branches: 
       - master
-      - github-actions
   schedule:
     - cron: 0 18 * * 0
 
