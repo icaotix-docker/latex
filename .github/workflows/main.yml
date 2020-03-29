@@ -26,7 +26,7 @@ jobs:
       
       - name: Build ${{matrix.scheme}}-scratch
         working-directory: ./scratch
-        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-scratch --build-arg SCHEME=${{matrix.scheme}}.
+        run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-scratch --build-arg SCHEME=${{matrix.scheme}} .
         
       - name: Upload ${{matrix.scheme}}-scratch image
         run: docker push ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-scratch
