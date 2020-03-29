@@ -96,7 +96,7 @@ jobs:
         run: echo ${{secrets.DOCKERHUB_PASSWORD}} | docker login -u ${{secrets.DOCKERHUB_USER}} --password-stdin
     
       - name: Build ${{matrix.scheme}} 
-        working-directory: ./incrental
+        working-directory: ./incremental
         run: docker build -t ${{secrets.DOCKERHUB_USER}}/latex:${{matrix.scheme}}-incremental --build-arg SOURCE=${{matrix.source}} --build-arg SCHEME=${{matrix.scheme}} .
         
       - name: Upload ${{matrix.scheme}}-incremental
