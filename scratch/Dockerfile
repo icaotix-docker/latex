@@ -5,7 +5,7 @@ ENV HOME /data
 WORKDIR /data
 
 RUN apt-get update -q \
-    && apt-get install -qy tar perl wget \
+    && apt-get install -qy libfontconfig1 tar perl wget \
     && rm -rf /var/lib/apt/lists/*
 
 ARG SCHEME
